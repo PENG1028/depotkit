@@ -52,7 +52,7 @@ db/
   migrations/postgres/     # SQL migration files
   seeds/postgres/          # Seed data (optional)
   schema/postgres/         # Schema output
-.datadock/
+.depotly/
   runtime/                 # Docker Compose files
   backups/
     postgres/              # PostgreSQL dump files
@@ -154,7 +154,7 @@ Runs `pg_dump --schema-only` and saves to `db/schema/postgres/latest.sql`.
 depotly pg backup
 ```
 
-Creates a compressed dump in `.datadock/backups/postgres/`.
+Creates a compressed dump in `.depotly/backups/postgres/`.
 
 ## Redis Key Versioning Strategy
 
@@ -276,7 +276,7 @@ project: demo-app
 
 runtime:
   mode: docker
-  compose_file: .datadock/runtime/docker-compose.yml
+  compose_file: .depotly/runtime/docker-compose.yml
 
 services:
   postgres:
@@ -319,10 +319,10 @@ services:
 postgres:
   migrations: db/migrations/postgres
   schema: db/schema/postgres/latest.sql
-  backups: .datadock/backups/postgres
+  backups: .depotly/backups/postgres
 
 mongo:
-  backups: .datadock/backups/mongo
+  backups: .depotly/backups/mongo
 
 object:
   backup_prefix: backups/
@@ -391,7 +391,7 @@ object:
 
 ## Endpoint Exposure Model
 
-StorePilot manages direct endpoints for local database instances. The **Endpoint Exposure Model** adds an optional declaration layer for future routed access.
+Depotly manages direct endpoints for local database instances. The **Endpoint Exposure Model** adds an optional declaration layer for future routed access.
 
 ### Concepts
 
@@ -401,14 +401,15 @@ StorePilot manages direct endpoints for local database instances. The **Endpoint
 
 ### Important
 
-- StorePilot does **not** implement a TCP proxy.
-- StorePilot does **not** call any Aegis API in this version.
-- StorePilot does **not** guarantee routed endpoint connectivity.
+- Depotly does **not** implement a TCP proxy.
+- Depotly does **not** call any Aegis API in this version.
+- Depotly does **not** guarantee routed endpoint connectivity.
 - Enabling exposure does **not** change your `DATABASE_URL`.
 - A manifest being present does **not** mean the route has been applied.
 - Exposure being enabled does **not** mean the routed endpoint is reachable.
+- `endpoint test` **only** tests the direct endpoint. Routed endpoint tests are not available.
 - Without exposure configuration, all existing database features work exactly as before.
-- Exposure directory is determined by `runtime.work_dir` in config (defaults to `.datadock`). If both `.storepilot` and `.datadock` exist and `work_dir` is not configured, the command will refuse with a clear error.
+- Exposure directory is determined by `runtime.work_dir` in config (defaults to `.depotly`). If both `.storepilot` and `.depotly` exist and `work_dir` is not configured, the command will refuse with a clear error.
 
 ### Commands
 
@@ -470,6 +471,41 @@ depotly endpoint unexpose postgres
 - Aegis provider is **manifest-only** — no API calls, no routing, no proxy.
 - `endpoint test` always tests only the direct endpoint. Routed endpoint tests are not available.
 
+## Secret Handling
+
+Depotly handles database credentials in two ways, depending on the instance type:
+
+**Local managed instances** (Docker containers managed by Depotly):
+- Credentials are stored in `depotly.yaml` in plaintext for local development convenience.
+- `endpoint direct` masks passwords by default (`--show-secret` to reveal; prints a warning).
+- `endpoint manifest` sets `credentials.omitted: true` — no credential reference is written.
+- The manifest is a route declaration, not a credential file.
+
+**External instances** (future `url_env` mode):
+- Depotly will support referencing credentials via environment variables.
+- The manifest will record `credential_ref.type: env` and the environment variable name.
+- Plaintext passwords will never be written to manifest or exposure files.
+
+**Exposure manifests:**
+- Never contain plaintext passwords, `DATABASE_URL`, `secret_key`, or tokens.
+- Are saved under `<work_dir>/exposures/` — a route declaration directory, not a secret store.
+- Operators should treat manifest files as non-sensitive routing metadata.
+
+> ⚠ **Production warning:** Plaintext credentials in `depotly.yaml` are acceptable for local development only. For production, use environment-variable-based configuration or a secrets manager.
+
+## v0.1 Known Limitations
+
+- **Single-node only**: No high availability, no replication, no failover.
+- **Docker-managed only**: External database instances are not supported in v0.1.
+- **No shadow database**: Test-instance cloning is not implemented.
+- **No migration down**: SQL rollback (`migrate down`) is not implemented.
+- **No concurrent migration safety**: Running `migrate up` concurrently may double-apply.
+- **PostgreSQL-only migration**: Redis, MinIO, and MongoDB do not have migration runners.
+- **PostgreSQL-only exposure**: `endpoint manifest` and `endpoint expose` only support PostgreSQL instances.
+- **Aegis manifest-only**: The Aegis provider generates manifests but does not call any Aegis API, create routes, or start proxies.
+- **No external gateway integration**: Depotly does not integrate with any external routing or API gateway.
+- **No encrypted config**: Secrets in `depotly.yaml` are stored in plaintext.
+
 ## Safety
 
 - **Never** deletes data without confirmation
@@ -480,7 +516,7 @@ depotly endpoint unexpose postgres
 - **Always** prints clear error messages
 - PostgreSQL migration refuses checksum mismatches
 - PostgreSQL migration refuses to proceed if a dirty migration exists
-- Operation logs are saved in `.datadock/reports/`
+- Operation logs are saved in `.depotly/reports/`
 
 ## License
 
