@@ -61,7 +61,7 @@ func NewManifest(name, instanceType, protocol, host string, port int, database s
 		},
 		Exposure: exposure,
 		Metadata: ManifestMetadata{
-			GeneratedBy: "storepilot",
+			GeneratedBy: "depotly",
 		},
 	}
 }

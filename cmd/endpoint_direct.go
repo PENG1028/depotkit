@@ -16,10 +16,10 @@ var endpointDirectCmd = &cobra.Command{
 This command does not use exposure providers.
 
 Examples:
-  storepilot endpoint direct postgres
-  storepilot endpoint direct redis
-  storepilot endpoint direct object
-  storepilot endpoint direct mongo`,
+  depotly endpoint direct postgres
+  depotly endpoint direct redis
+  depotly endpoint direct object
+  depotly endpoint direct mongo`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetConfig()

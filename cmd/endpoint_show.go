@@ -14,10 +14,10 @@ var endpointShowCmd = &cobra.Command{
 	Long: `Display the endpoint configuration and exposure status for a database instance.
 
 Examples:
-  storepilot endpoint show postgres
-  storepilot endpoint show redis
-  storepilot endpoint show object
-  storepilot endpoint show mongo`,
+  depotly endpoint show postgres
+  depotly endpoint show redis
+  depotly endpoint show object
+  depotly endpoint show mongo`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetConfig()

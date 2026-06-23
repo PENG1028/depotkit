@@ -21,7 +21,7 @@ This updates the configuration file and generates an exposure manifest.
 In this version, exposure is manifest-only — no Aegis API is called.
 
 Examples:
-  storepilot endpoint expose postgres --provider aegis
+  depotly endpoint expose postgres --provider aegis
 
 Supported providers: aegis`,
 	Args: cobra.ExactArgs(1),
@@ -60,7 +60,7 @@ Supported providers: aegis`,
 		// Save config
 		configPath := cfgFile
 		if configPath == "" {
-			configPath = "storepilot.yaml"
+			configPath = "depotly.yaml"
 			if _, statErr := os.Stat(configPath); statErr != nil {
 				configPath = "depotly.yaml"
 			}
@@ -107,31 +107,29 @@ Supported providers: aegis`,
 		PrintWarn("The routed endpoint is not reachable until Aegis applies this manifest.")
 
 		PrintInfo("Exposure enabled for '%s' (provider: %s)", name, exposeProvider)
-		PrintInfo("Run 'storepilot endpoint manifest %s' to view the manifest", name)
-		PrintInfo("Run 'storepilot endpoint test %s' to verify direct connectivity", name)
+		PrintInfo("Run 'depotly endpoint manifest %s' to view the manifest", name)
+		PrintInfo("Run 'depotly endpoint test %s' to verify direct connectivity", name)
 	},
 }
 
 // resolveExposureDir determines the exposure directory using the configured work_dir.
 // Defaults to .depotly if work_dir is not set.
-// If both .storepilot AND .depotly exist and work_dir is not configured, returns an error.
+// If both .depotly and .datadock exist, returns an error to prevent ambiguous writes.
 func resolveExposureDir(cfg *config.Config) (string, error) {
 	workDir := cfg.Runtime.WorkDir
 	if workDir == "" {
-		// Check for ambiguous dual-directory situation
-		storepilotExists := false
-		datadockExists := false
-		if _, err := os.Stat(".storepilot"); err == nil {
-			storepilotExists = true
-		}
-		if _, err := os.Stat(".datadock"); err == nil {
-			datadockExists = true
-		}
-		if storepilotExists && datadockExists {
-			return "", NewSoftError("both .storepilot and .depotly exist; set runtime.work_dir in config to disambiguate")
-		}
-		workDir = ".datadock"
+		workDir = ".depotly"
 	}
+
+	// Always check for ambiguous dual-directory situation, regardless of workDir setting.
+	// This catches cases where a user has both directories leftover from migration.
+	if workDir == ".depotly" {
+		if _, err := os.Stat(".datadock"); err == nil {
+			// .datadoc exists alongside .depotly
+			return "", NewSoftError("both .depotly and .datadock exist; set runtime.work_dir in config, or remove .datadock")
+		}
+	}
+
 	return filepath.Join(workDir, "exposures"), nil
 }
 

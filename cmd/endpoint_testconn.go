@@ -21,8 +21,8 @@ For other types, performs a connectivity check.
 If exposure is enabled, the routed endpoint is NOT tested in this version.
 
 Examples:
-  storepilot endpoint test postgres
-  storepilot endpoint test redis`,
+  depotly endpoint test postgres
+  depotly endpoint test redis`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetConfig()

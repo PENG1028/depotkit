@@ -28,7 +28,7 @@ func (p *AegisManifestProvider) GenerateManifest(instance *InstanceInfo) (*Expos
 			Omitted: true,
 		},
 		Metadata: ManifestMetadata{
-			GeneratedBy: "storepilot",
+			GeneratedBy: "depotly",
 		},
 	}
 

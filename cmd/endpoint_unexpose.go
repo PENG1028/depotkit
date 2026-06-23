@@ -22,7 +22,7 @@ This updates the configuration file but does NOT:
   - Delete migration state
 
 Examples:
-  storepilot endpoint unexpose postgres`,
+  depotly endpoint unexpose postgres`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetConfig()
@@ -55,7 +55,7 @@ Examples:
 		// Save config
 		configPath := cfgFile
 		if configPath == "" {
-			configPath = "storepilot.yaml"
+			configPath = "depotly.yaml"
 			if _, err := os.Stat(configPath); os.IsNotExist(err) {
 				configPath = "depotly.yaml"
 			}
@@ -79,7 +79,7 @@ Examples:
 
 		fmt.Println()
 		PrintInfo("Unexpose completed. The database instance is unchanged.")
-		PrintInfo("Direct endpoint is still available via 'storepilot endpoint direct %s'", name)
+		PrintInfo("Direct endpoint is still available via 'depotly endpoint direct %s'", name)
 	},
 }
 

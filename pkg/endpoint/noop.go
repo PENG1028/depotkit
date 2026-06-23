@@ -27,7 +27,7 @@ func (p *NoopExposureProvider) GenerateManifest(instance *InstanceInfo) (*Exposu
 			Omitted: true,
 		},
 		Metadata: ManifestMetadata{
-			GeneratedBy: "storepilot",
+			GeneratedBy: "depotly",
 		},
 	}, nil
 }

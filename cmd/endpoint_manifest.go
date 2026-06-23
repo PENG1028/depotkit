@@ -19,7 +19,7 @@ If exposure is disabled, the manifest will reflect that status.
 MVP v0.1: only PostgreSQL instances are supported for manifest generation.
 
 Examples:
-  storepilot endpoint manifest postgres`,
+  depotly endpoint manifest postgres`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetConfig()
@@ -38,7 +38,7 @@ Examples:
 		if !inst.Endpoint.Exposure.Enabled {
 			fmt.Printf("# Exposure is disabled for instance '%s'.\n", inst.Name)
 			fmt.Printf("# The manifest below reflects the current configuration.\n")
-			fmt.Printf("# Run 'storepilot endpoint expose %s --provider aegis' to enable.\n", inst.Name)
+			fmt.Printf("# Run 'depotly endpoint expose %s --provider aegis' to enable.\n", inst.Name)
 			fmt.Println()
 		}
 
