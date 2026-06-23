@@ -8,7 +8,7 @@ import (
 var mongoBackupCmd = &cobra.Command{
 	Use:   "backup",
 	Short: "Create a MongoDB backup using mongodump",
-	Long:  `Run mongodump and save a backup to .datadock/backups/mongo/.`,
+	Long:  `Run mongodump and save a backup to .depotly/backups/mongo/.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetConfig()
 

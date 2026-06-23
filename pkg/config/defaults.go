@@ -6,7 +6,8 @@ func DefaultConfig(projectName string) *Config {
 		Project: projectName,
 		Runtime: RuntimeConfig{
 			Mode:        "docker",
-			ComposeFile: ".datadock/runtime/docker-compose.yml",
+			ComposeFile: ".depotly/runtime/docker-compose.yml",
+			WorkDir:     ".depotly",
 		},
 		Services: ServiceConfig{
 			Postgres: PostgresService{
@@ -19,7 +20,7 @@ func DefaultConfig(projectName string) *Config {
 				Password:      "app_password",
 				Volume:        projectName + "_postgres_data",
 			},
-			Redis: RedisService{
+				Redis: RedisService{
 				Enabled:       true,
 				Image:         "redis:7",
 				ContainerName: projectName + "-redis",
@@ -50,10 +51,10 @@ func DefaultConfig(projectName string) *Config {
 		Postgres: PostgresConfig{
 			Migrations: "db/migrations/postgres",
 			Schema:     "db/schema/postgres/latest.sql",
-			Backups:    ".datadock/backups/postgres",
+			Backups:    ".depotly/backups/postgres",
 		},
 		Mongo: MongoConfig{
-			Backups: ".datadock/backups/mongo",
+			Backups: ".depotly/backups/mongo",
 		},
 		Object: ObjectConfig{
 			BackupPrefix: "backups/",

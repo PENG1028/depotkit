@@ -125,7 +125,7 @@ func GenerateCompose(cfg *config.Config) (string, error) {
 	}
 
 	// Shared network
-	sb.WriteString("networks:\n  default:\n    name: datadock\n")
+	sb.WriteString("networks:\n  default:\n    name: depotly\n")
 
 	return sb.String(), nil
 }

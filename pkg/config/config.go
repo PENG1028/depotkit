@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Config represents the full storepilot.yaml / depotly.yaml configuration.
+// Config represents the full depotly.yaml / depotly.yaml configuration.
 type Config struct {
 	Project  string         `yaml:"project"`
 	Runtime  RuntimeConfig  `yaml:"runtime"`
@@ -20,7 +20,7 @@ type Config struct {
 type RuntimeConfig struct {
 	Mode        string `yaml:"mode"`
 	ComposeFile string `yaml:"compose_file"`
-	WorkDir     string `yaml:"work_dir,omitempty"` // data directory, defaults to .datadock
+	WorkDir     string `yaml:"work_dir,omitempty"` // data directory, defaults to .depotly
 }
 
 type ServiceConfig struct {
@@ -132,7 +132,7 @@ type ObjectConfig struct {
 	BackupPrefix string `yaml:"backup_prefix"`
 }
 
-// Load reads and parses storepilot.yaml / depotly.yaml from the given path,
+// Load reads and parses depotly.yaml / depotly.yaml from the given path,
 // then applies default values for any missing fields.
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)

@@ -8,7 +8,7 @@ import (
 var pgBackupCmd = &cobra.Command{
 	Use:   "backup",
 	Short: "Create a PostgreSQL backup dump",
-	Long:  `Run pg_dump -Fc and save a compressed backup to .datadock/backups/postgres/.`,
+	Long:  `Run pg_dump -Fc and save a compressed backup to .depotly/backups/postgres/.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetConfig()
 

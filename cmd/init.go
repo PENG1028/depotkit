@@ -42,10 +42,10 @@ directory structure for a new Depotly project.`,
 			"db/migrations/postgres",
 			"db/seeds/postgres",
 			"db/schema/postgres",
-			".datadock/runtime",
-			".datadock/backups/postgres",
-			".datadock/backups/mongo",
-			".datadock/reports",
+			".depotly/runtime",
+			".depotly/backups/postgres",
+			".depotly/backups/mongo",
+			".depotly/reports",
 		}
 
 		if err := utils.EnsureDirAll(".", dirs); err != nil {
@@ -71,7 +71,7 @@ directory structure for a new Depotly project.`,
 		fmt.Println()
 		fmt.Println("  Config:    depotly.yaml")
 		fmt.Println("  Migrations: db/migrations/postgres/")
-		fmt.Println("  Backup:     .datadock/backups/")
+		fmt.Println("  Backup:     .depotly/backups/")
 		fmt.Println()
 		fmt.Println("Next steps:")
 		fmt.Println("  depotly doctor   # Check Docker and prerequisites")

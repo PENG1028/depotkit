@@ -42,11 +42,11 @@ func RunDoctorChecks() []CheckResult {
 		results = append(results, CheckResult{Name: "Write permission", Status: "fail", Detail: fmt.Sprintf("Directory is not writable: %s", cwd)})
 	}
 
-	// Check .datadock can be created (implicitly checked by writable test above)
+	// Check .depotly can be created (implicitly checked by writable test above)
 	if utils.IsWritable(cwd) {
-		results = append(results, CheckResult{Name: ".datadock directory", Status: "pass", Detail: ".datadock can be created"})
+		results = append(results, CheckResult{Name: ".depotly directory", Status: "pass", Detail: ".depotly can be created"})
 	} else {
-		results = append(results, CheckResult{Name: ".datadock directory", Status: "fail", Detail: fmt.Sprintf("Cannot create .datadock in %s", cwd)})
+		results = append(results, CheckResult{Name: ".depotly directory", Status: "fail", Detail: fmt.Sprintf("Cannot create .depotly in %s", cwd)})
 	}
 
 	// Check port availability

@@ -10,7 +10,7 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-const testObjectPrefix = ".datadock/test-object.txt"
+const testObjectPrefix = ".depotly/test-object.txt"
 
 // PutTestObject uploads a small test object.
 func PutTestObject(client *minio.Client, bucket string) error {

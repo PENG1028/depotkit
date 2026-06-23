@@ -52,11 +52,21 @@ func PrintWarn(format string, args ...interface{}) {
 	fmt.Printf("⚠ "+format+"\n", args...)
 }
 
-// GetConfig loads the configuration from the default or specified path.
+// GetConfig loads the configuration.
+// Priority: --config flag > depotly.yaml > datadock.yaml (legacy).
 func GetConfig() *config.Config {
 	path := cfgFile
 	if path == "" {
-		path = "depotly.yaml"
+		// Try new config name first, fall back to legacy
+		if _, err := os.Stat("depotly.yaml"); err == nil {
+			path = "depotly.yaml"
+		} else if _, err := os.Stat("datadock.yaml"); err == nil {
+			path = "datadock.yaml"
+			PrintWarn("Legacy config detected: datadock.yaml")
+			PrintInfo("Rename to depotly.yaml or run 'depotly init' to create a fresh config")
+		} else {
+			ExitError("No config found. Run 'depotly init' or create depotly.yaml")
+		}
 	}
 	cfg, err := config.Load(path)
 	if err != nil {

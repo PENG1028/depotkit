@@ -33,7 +33,7 @@ func PathExists(path string) bool {
 
 // IsWritable checks if a directory is writable.
 func IsWritable(path string) bool {
-	testFile := filepath.Join(path, ".datadock_write_test")
+	testFile := filepath.Join(path, ".depotly_write_test")
 	f, err := os.Create(testFile)
 	if err != nil {
 		return false
