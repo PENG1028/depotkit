@@ -1,0 +1,19 @@
+# Binaries
+depotly
+depotly.exe
+*.exe
+
+# Local runtime
+.datadock/
+.storepilot/
+
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
