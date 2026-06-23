@@ -28,7 +28,7 @@ var objectPutTestCmd = &cobra.Command{
 			ExitError("Failed to upload test object: %v", err)
 		}
 
-		PrintSuccess("Test object uploaded to %s/%s", cfg.Services.Object.Bucket, ".datadock/test-object.txt")
+		PrintSuccess("Test object uploaded to %s/%s", cfg.Services.Object.Bucket, ".depotly/test-object.txt")
 	},
 }
 

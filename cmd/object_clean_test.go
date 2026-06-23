@@ -10,7 +10,7 @@ import (
 var objectCleanTestCmd = &cobra.Command{
 	Use:   "clean-test",
 	Short: "Remove test objects created by Depotly",
-	Long:  `Delete all test objects (under .datadock/ prefix) from the bucket.`,
+	Long:  `Delete all test objects (under .depotly/ prefix) from the bucket.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetConfig()
 
