@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/depotly/depotly/pkg/config"
+	"github.com/depotly/depotly/pkg/store"
 	"github.com/depotly/depotly/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -57,6 +58,20 @@ directory structure for a new Depotly project.`,
 
 		if err := config.Save("depotly.yaml", cfg); err != nil {
 			ExitError("Failed to write depotly.yaml: %v", err)
+		}
+
+		// Initialize DBManager metadata store
+		workDir := cfg.Runtime.WorkDir
+		if workDir == "" {
+			workDir = ".depotly"
+		}
+		metadataPath := workDir + "/metadata.db"
+		db, err := store.Open(metadataPath)
+		if err != nil {
+			PrintWarn("Failed to initialize metadata store: %v", err)
+		} else {
+			db.Close()
+			PrintInfo("DBManager metadata store: %s", metadataPath)
 		}
 
 		// Create empty schema placeholder
