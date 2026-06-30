@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/depotly/depotly/pkg/impact"
 	"github.com/depotly/depotly/pkg/resource"
 	"github.com/spf13/cobra"
 )
@@ -201,41 +202,52 @@ var resourceDeleteCmd = &cobra.Command{
 	Short: "Delete a resource",
 	Long: `Remove a resource from DBManager.
 
-If the resource has active bindings or access endpoints, the command
-will refuse unless --force is used.
+Shows detailed impact analysis before deletion — which services are
+bound, which access endpoints are active, and the risk level.
 
 Use --force to bypass safety checks.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		svc := resource.NewService(GetStore())
 
-		// Pre-delete impact display
 		if !resDeleteForce {
-			r, err := svc.GetResource(args[0])
+			analyzer := impact.New(GetStore())
+			result, err := analyzer.AnalyzeResource(args[0])
 			if err != nil {
 				ExitError("%v", err)
 			}
 
-			fmt.Printf("Resource: %s (%s)\n", r.Name, r.KindLabel())
-			fmt.Printf("Environment: %s\n", r.Environment)
-
-			db := GetStore()
-			var bCount, aCount int
-			db.QueryRow("SELECT COUNT(*) FROM bindings WHERE resource_id = ?", r.ID).Scan(&bCount)
-			db.QueryRow("SELECT COUNT(*) FROM access_endpoints WHERE resource_id = ? AND status = 'active'", r.ID).Scan(&aCount)
-
-			if bCount > 0 {
-				fmt.Printf("Bindings:     %d service(s)\n", bCount)
-			}
-			if aCount > 0 {
-				fmt.Printf("Access:       %d active endpoint(s)\n", aCount)
-			}
-			if r.IsProduction {
-				fmt.Printf("⚠  This is a PRODUCTION resource.\n")
-			}
+			fmt.Printf("Resource:     %s (%s)\n", result.Resource.Name, result.Resource.Kind)
+			fmt.Printf("Environment:  %s\n", result.Resource.Environment)
+			fmt.Printf("Risk Level:   %s\n", result.RiskLevel)
 			fmt.Println()
 
-			if bCount > 0 || aCount > 0 {
+			if len(result.Bindings) > 0 {
+				fmt.Printf("  Service Bindings (%d):\n", len(result.Bindings))
+				for _, b := range result.Bindings {
+					fmt.Printf("    - %s (%s, %s)\n", b.Service, b.Environment, b.EnvKey)
+				}
+				fmt.Println()
+			}
+
+			if len(result.AccessPoints) > 0 {
+				fmt.Printf("  Active Access (%d):\n", len(result.AccessPoints))
+				for _, e := range result.AccessPoints {
+					exp := ""
+					if e.ExpiresAt != "" {
+						exp = fmt.Sprintf(" (expires: %s)", e.ExpiresAt)
+					}
+					fmt.Printf("    - %s → %s:%d%s\n", e.ID, e.TargetHost, e.TargetPort, exp)
+				}
+				fmt.Println()
+			}
+
+			if result.Resource.IsProduction {
+				fmt.Println("  🚫  This is a PRODUCTION resource.")
+				fmt.Println()
+			}
+
+			if len(result.Bindings) > 0 || len(result.AccessPoints) > 0 {
 				fmt.Println("Use --force to delete anyway.")
 				return
 			}
@@ -248,7 +260,6 @@ Use --force to bypass safety checks.`,
 	},
 }
 
-// resource command flags
 var (
 	resFilterKind    string
 	resFilterEnv     string
