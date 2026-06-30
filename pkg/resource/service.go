@@ -7,8 +7,6 @@ import (
 )
 
 // Service provides business logic for resource management.
-// It sits between CLI/HTTP and the persistence layer, handling
-// validation, audit logging, and operation tracking.
 type Service struct {
 	rs  *resourceStore
 	aud *store.DB
@@ -23,9 +21,7 @@ func NewService(db *store.DB) *Service {
 }
 
 // CreateResource validates and registers a new resource.
-// Returns the created resource with its generated ID.
 func (s *Service) CreateResource(r *Resource) (*Resource, error) {
-	// --- Validation ---
 	if r.Name == "" {
 		return nil, fmt.Errorf("resource name is required")
 	}
@@ -54,28 +50,22 @@ func (s *Service) CreateResource(r *Resource) (*Resource, error) {
 		r.CreatedBy = "admin"
 	}
 
-	// --- Record operation ---
 	op := &store.Operation{
 		Type:    "create_resource",
 		Status:  "running",
 		Actor:   "admin",
 		Message: fmt.Sprintf("Creating resource: %s (%s)", r.Name, r.Kind),
 	}
-	if err := s.aud.CreateOperation(op); err != nil {
-		return nil, fmt.Errorf("record operation: %w", err)
-	}
+	s.aud.CreateOperation(op)
 
-	// --- Execute ---
 	if err := s.rs.CreateResource(r); err != nil {
 		s.aud.FinishOperation(op.ID, "failed", err.Error())
 		return nil, err
 	}
 
-	// --- Finish operation ---
 	s.aud.FinishOperation(op.ID, "success",
 		fmt.Sprintf("Resource created: %s (%s)", r.ID, r.Name))
 
-	// --- Audit log ---
 	s.aud.AppendAuditLog(&store.AuditLog{
 		Actor:      "admin",
 		Action:     "resource.create",
@@ -95,13 +85,12 @@ func (s *Service) GetResource(id string) (*Resource, error) {
 	return s.rs.GetResource(id)
 }
 
-// ListResources returns resources matching the given filters.
+// ListResources returns resources matching the filter.
 func (s *Service) ListResources(filter *Filter) ([]*Resource, error) {
 	return s.rs.ListResources(filter)
 }
 
 // DeleteResource removes a resource with safety checks.
-// If force is false, binding and access endpoint checks are performed.
 func (s *Service) DeleteResource(id string, force bool) error {
 	if id == "" {
 		return fmt.Errorf("resource ID is required")
@@ -112,7 +101,6 @@ func (s *Service) DeleteResource(id string, force bool) error {
 		return err
 	}
 
-	// --- Record operation ---
 	op := &store.Operation{
 		Type:    "delete_resource",
 		Status:  "running",
@@ -121,7 +109,6 @@ func (s *Service) DeleteResource(id string, force bool) error {
 	}
 	s.aud.CreateOperation(op)
 
-	// --- Execute ---
 	if err := s.rs.DeleteResource(id, force); err != nil {
 		s.aud.FinishOperation(op.ID, "failed", err.Error())
 		return err
@@ -130,7 +117,6 @@ func (s *Service) DeleteResource(id string, force bool) error {
 	s.aud.FinishOperation(op.ID, "success",
 		fmt.Sprintf("Resource deleted: %s", id))
 
-	// --- Audit log ---
 	s.aud.AppendAuditLog(&store.AuditLog{
 		Actor:      "admin",
 		Action:     "resource.delete",
